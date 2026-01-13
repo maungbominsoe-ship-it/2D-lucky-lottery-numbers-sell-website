@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Plus - VIP Lottery Numbers</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Snow/Stars Background Canvas -->
+    <canvas id="snowCanvas"></canvas>
+    
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container header-container">
+            <!-- Left Side: Logo + App Name -->
+            <div class="header-left">
+                <div class="logo">
+                    <div class="web-logo">2D</div>
+                </div>
+                <h1 class="app-name">2D Plus</h1>
+            </div>
+            
+            <!-- Right Side: Navigation Items -->
+            <div class="header-right">
+                <!-- Download App -->
+                <a href="#" class="nav-item download-app">
+                    <i class="fas fa-download"></i>
+                    <span class="nav-text">Download App</span>
+                </a>
+                
+                <!-- Messenger -->
+                <a href="#" class="nav-item messenger">
+                    <i class="fab fa-facebook-messenger"></i>
+                </a>
+                
+                <!-- Viber -->
+                <a href="#" class="nav-item viber">
+                    <i class="fab fa-viber"></i>
+                </a>
+                
+                <!-- Notification Bell with Toggle -->
+                <div class="notification-container">
+                    <button class="nav-item bell-btn" id="bellBtn">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="notification-toggle" id="notificationToggle">
+                        <div class="toggle-header">
+                            <span>Notification Settings</span>
+                            <button class="close-toggle">&times;</button>
+                        </div>
+                        <div class="toggle-body">
+                            <span>Turn notifications:</span>
+                            <label class="switch">
+                                <input type="checkbox" id="notifyToggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-status" id="toggleStatus">OFF</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Dropdown Menu -->
+        <div class="mobile-dropdown" id="mobileDropdown">
+            <!-- Download App -->
+            <a href="#" class="mobile-menu-item">
+                <i class="fas fa-download"></i>
+                <span>Download App</span>
+            </a>
+            
+            <!-- Notification with Toggle -->
+            <div class="mobile-notification-item">
+                <div class="mobile-notification-header">
+                    <i class="fas fa-bell"></i>
+                    <span>Notification</span>
+                    <button class="mobile-notification-toggle-btn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+                
+                <!-- Notification Toggle Panel -->
+                <div class="mobile-notification-toggle">
+                    <div class="toggle-header">
+                        <span>Notification Settings</span>
+                        <button class="close-mobile-toggle">&times;</button>
+                    </div>
+                    <div class="toggle-body">
+                        <span>Turn notifications:</span>
+                        <label class="switch">
+                            <input type="checkbox" id="mobileNotifyToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-status" id="mobileToggleStatus">OFF</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Viber -->
+            <a href="#" class="mobile-menu-item">
+                <i class="fab fa-viber"></i>
+                <span>Viber</span>
+            </a>
+            
+            <!-- Messenger -->
+            <a href="#" class="mobile-menu-item">
+                <i class="fab fa-facebook-messenger"></i>
+                <span>Messenger</span>
+            </a>
+        </div>
+    </header>
+
+            <!-- User Profile Section - Hidden by default -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <div class="user-profile-container">
+                <div class="user-profile-header">
+                    <div class="user-avatar" id="userAvatar">
+                        <span class="avatar-text" id="avatarText">U</span>
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name" id="userName">Guest User</h3>
+                        <div class="user-id" id="userId">ID: Loading...</div>
+                        <div class="user-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span id="purchaseCount">0</span> purchases
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-coins"></i>
+                                <span id="totalSpent">0</span> Ks
+                            </span>
+                        </div>
+                    </div>
+                    <button class="close-profile" onclick="closeUserProfile()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="user-profile-tabs">
+                    <button class="profile-tab active" onclick="switchProfileTab('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </button>
+                    <button class="profile-tab" onclick="switchProfileTab('history')">
+                        <i class="fas fa-history"></i> History
+                    </button>
+                    <button class="profile-tab" onclick="switchProfileTab('settings')">
+                        <i class="fas fa-cog"></i> Settings
+                    </button>
+                    <button class="profile-tab" onclick="switchProfileTab('backup')">
+                        <i class="fas fa-sync-alt"></i> Sync
+                    </button>
+                </div>
+                
+                <!-- Dashboard Tab -->
+                <div class="profile-tab-content active" id="dashboardTab">
+                    <div class="welcome-message">
+                        <h4><i class="fas fa-hand-wave"></i> Welcome back!</h4>
+                        <p>Here's your personalized dashboard</p>
+                    </div>
+                    
+                    <div class="quick-stats">
+                        <div class="quick-stat-card">
+                            <div class="quick-stat-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="quick-stat-info">
+                                <div class="quick-stat-value" id="approvedPurchases">0</div>
+                                <div class="quick-stat-label">Approved</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-stat-card">
+                            <div class="quick-stat-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="quick-stat-info">
+                                <div class="quick-stat-value" id="pendingPurchases">0</div>
+                                <div class="quick-stat-label">Pending</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-stat-card">
+                            <div class="quick-stat-icon favorite">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="quick-stat-info">
+                                <div class="quick-stat-value" id="favoritePackage">None</div>
+                                <div class="quick-stat-label">Favorite</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activity">
+                        <h5><i class="fas fa-bolt"></i> Recent Activity</h5>
+                        <div class="activity-list" id="recentActivityList">
+                            <!-- Activities will appear here -->
+                            <div class="empty-activity">No recent activity</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="profile-action-btn" onclick="userSystem.exportUserData()">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                        <button class="profile-action-btn" onclick="userSystem.resetUserData()">
+                            <i class="fas fa-trash"></i> Reset Data
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- History Tab -->
+                <div class="profile-tab-content" id="historyTab">
+                    <div class="history-header">
+                        <h4><i class="fas fa-receipt"></i> Purchase History</h4>
+                        <button class="clear-history-btn" onclick="userSystem.clearPurchaseHistory()">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <div class="history-filters">
+                        <button class="filter-btn active" onclick="filterHistory('all')">All</button>
+                        <button class="filter-btn" onclick="filterHistory('approved')">Approved</button>
+                        <button class="filter-btn" onclick="filterHistory('pending')">Pending</button>
+                        <button class="filter-btn" onclick="filterHistory('rejected')">Rejected</button>
+                    </div>
+                    
+                    <div class="history-list" id="purchaseHistoryList">
+                        <!-- Purchase history will appear here -->
+                        <div class="empty-history">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>No purchase history yet</p>
+                            <p class="subtext">Your purchases will appear here</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div class="profile-tab-content" id="settingsTab">
+                    <div class="settings-section">
+                        <h5><i class="fas fa-user-edit"></i> Profile Settings</h5>
+                        <div class="setting-item">
+                            <label>Display Name</label>
+                            <input type="text" id="displayNameInput" placeholder="Enter your name">
+                            <button class="save-btn" onclick="userSystem.updateDisplayName()">Save</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>Avatar Color</label>
+                            <div class="color-options">
+                                <div class="color-option" style="background: #00d4ff;" onclick="userSystem.setAvatarColor('#00d4ff')"></div>
+                                <div class="color-option" style="background: #4CAF50;" onclick="userSystem.setAvatarColor('#4CAF50')"></div>
+                                <div class="color-option" style="background: #ff6b6b;" onclick="userSystem.setAvatarColor('#ff6b6b')"></div>
+                                <div class="color-option" style="background: #ffc107;" onclick="userSystem.setAvatarColor('#ffc107')"></div>
+                                <div class="color-option" style="background: #9c27b0;" onclick="userSystem.setAvatarColor('#9c27b0')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h5><i class="fas fa-bell"></i> Notification Settings</h5>
+                        <div class="setting-item">
+                            <label>Auto-save selections</label>
+                            <label class="switch">
+                                <input type="checkbox" id="autoSaveSelections" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>Remember payment info</label>
+                            <label class="switch">
+                                <input type="checkbox" id="rememberPaymentInfo" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>Show purchase history</label>
+                            <label class="switch">
+                                <input type="checkbox" id="showPurchaseHistory" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h5><i class="fas fa-shield-alt"></i> Privacy</h5>
+                        <div class="setting-item">
+                            <label>Clear all data on browser close</label>
+                            <label class="switch">
+                                <input type="checkbox" id="clearOnClose">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <button class="privacy-btn" onclick="userSystem.clearAllUserData()">
+                            <i class="fas fa-trash"></i> Delete All My Data
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Backup/Sync Tab -->
+                <div class="profile-tab-content" id="backupTab">
+                    <div class="backup-section">
+                        <h5><i class="fas fa-qrcode"></i> Sync Across Devices</h5>
+                        <p class="backup-description">Scan QR code to sync your data to another device</p>
+                        
+                        <div class="qr-container" id="qrCodeContainer">
+                            <!-- QR code will appear here -->
+                            <div class="loading-qr">Generating QR code...</div>
+                        </div>
+                        
+                        <div class="backup-actions">
+                            <button class="backup-btn" onclick="userSystem.generateQRCode()">
+                                <i class="fas fa-qrcode"></i> Generate New QR
+                            </button>
+                            <button class="backup-btn" onclick="userSystem.importFromQR()">
+                                <i class="fas fa-upload"></i> Import from QR
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="backup-section">
+                        <h5><i class="fas fa-file-export"></i> Export/Import Data</h5>
+                        <p class="backup-description">Backup your data or import from another device</p>
+                        
+                        <div class="backup-actions">
+                            <button class="backup-btn" onclick="userSystem.exportUserData()">
+                                <i class="fas fa-download"></i> Export Data File
+                            </button>
+                            <button class="backup-btn" onclick="document.getElementById('importFileInput').click()">
+                                <i class="fas fa-upload"></i> Import Data File
+                            </button>
+                            <input type="file" id="importFileInput" accept=".json" hidden 
+                                onchange="userSystem.importUserData(event)">
+                        </div>
+                        
+                        <div class="backup-info">
+                            <p><i class="fas fa-info-circle"></i> Your data is stored locally in your browser</p>
+                            <p><i class="fas fa-info-circle"></i> Export to backup or move to another device</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile Button in Header -->
+        <!-- Add this to your header-right section in index.html -->
+        <div class="user-profile-btn" onclick="openUserProfile()" title="My Profile">
+            <i class="fas fa-user-circle"></i>
+        </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Date and Time Section -->
+            <div class="datetime-section">
+                <div class="date-time-container">
+                    <div class="big-date" id="currentDate">29.12.2025</div>
+                    <div class="timer" id="currentTime">Monday - 10:30:02 s</div>
+                </div>
+                
+                <!-- Session Times Box -->
+                <div class="session-times-box">
+                    <div class="time-box morning">
+                        <div class="time-label">12:01 PM</div>
+                        <div class="morning-code">- -</div>
+                    </div>
+                   
+                    <div class="time-box evening">
+                        <div class="time-label">4:30 PM</div>
+                        <div class="evening-code">- -</div>
+                    </div>
+                </div>
+                
+                <!-- Session Label -->
+                <div class="session-label">
+                    <div class="session-text" id="sessionText">Morning session</div>
+                </div>
+            </div>
+
+            <!-- Gift Section with CLOSED STATE -->
+            <section class="gift-section" id="giftSection">
+
+                <!-- Closed State -->
+                <div class="section-closed" id="giftClosed">
+                    <div class="closed-content">
+                        <div class="closed-icon">Closed 🔒</div>
+                        <div class="closed-text">
+                            <div class="closed-title">Gift 🎁</div>
+                            <div class="closed-message">Come back in 2D opening days</div>
+                        </div>
+                    </div>               
+                </div>
+
+                <!-- Original Gift Content (Hidden when closed) -->
+                <div class="section-content" id="giftContent">
+                    <h2 class="gift-title">
+                     Gift for You 🎁
+                    </h2>
+                    
+                    <div class="key-display">
+                        <span class="key-label">Key :</span>
+                        <span class="key-digit">0</span>
+                        <span class="key-dot">.</span>
+                        <span class="key-digit">0</span>
+                        <span class="key-dot">.</span>
+                        <span class="key-digit">0</span>
+                        <span class="key-dot">.</span>
+                        <span class="key-digit">0</span>
+                    </div>
+                    
+                    <div class="number-sequence">
+                        <div class="number-row">12.13.14.15.16</div>
+                        <div class="number-row">12.13.14.15.16</div>
+                        <div class="number-row">12.13.14.15.16</div>
+                        <div class="number-row">- R👈</div>
+                    </div>
+                    
+                    <div class="motivation-section">
+                        <p class="motivation-text">
+                            No more worry for your lucky numbers. Let me help you win in 2D lottery game.
+                        </p>
+                        <p class="package-info">
+                            You can select your favorite VIP package one or more. No scam.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIP Packages Section with CLOSED STATE -->
+            <section class="packages-section" id="packagesSection">
+            
+                 <!-- Closed State -->
+                <div class="section-closed" id="vipClosed">
+                        <div class="closed-content">
+                            <div class="closed-icon">Closed 🔒</div>
+                            <div class="closed-text">
+                                <div class="closed-title">VIP packages</div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- Original VIP Content (Hidden when closed) -->
+                <div class="section-content" id="vipContent">
+                    <div class="vip-packages">VIP Packages</div>
+                    <div class="packages-container">
+                        <!-- Package 1: 2 hot keys -->
+                        <div class="package-card" data-id="1" data-price="5000">
+                            <div class="package-content">
+                                <div class="package-icon">
+                                    <i class="fas fa-key"></i>
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <h4 class="package-title">2 hot keys</h4>
+                                <div class="package-price">5,000 Ks</div>
+                                <div class="package-select">
+                                    <div class="checkmark" id="check1"></div>
+                                </div>
+                            </div>
+                            <div class="unavailable-overlay">
+                                <span>Not available</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Package 2: 1 hot key -->
+                        <div class="package-card" data-id="2" data-price="10000">
+                            <div class="package-content">
+                                <div class="package-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <h4 class="package-title">1 hot key</h4>
+                                <div class="package-price">10,000 Ks</div>
+                                <div class="package-select">
+                                    <div class="checkmark" id="check2"></div>
+                                </div>
+                            </div>
+                            <div class="unavailable-overlay">
+                                <span>Not available</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Package 3: 8 pairs -->
+                        <div class="package-card" data-id="3" data-price="15000">
+                            <div class="package-content">
+                                <div class="package-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <h4 class="package-title">8 pairs</h4>
+                                <div class="package-price">15,000 Ks</div>
+                                <div class="package-select">
+                                    <div class="checkmark" id="check3"></div>
+                                </div>
+                            </div>
+                            <div class="unavailable-overlay">
+                                <span>Not available</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Packages Summary -->
+                    <div class="selection-summary" id="selectionSummary">
+                        <div class="selected-items" id="selectedItems">
+                            You haven't selected any package yet
+                        </div>
+                        <div class="total-amount" id="totalAmount">
+                            Total amount = 0 Ks
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Payment Button -->
+                    <button class="confirm-btn" id="confirmBtn">
+                        Confirm the Payment<br>
+                        <span class="btn-subtext">and get the VIP package</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Payment Details Section -->
+            <section class="payment-section" id="paymentSection">
+
+                <div class="payment-methods">
+                    <div class="payment-method">
+                        <h4>Kpay / WavePay</h4>
+                        <h3 class="scan-to-pay">Scan to Pay</h3>
+                        <div class="phone-numbers">
+                            <div class="phone-number">
+                                <img class="kpay" src="Kpay logo.png.png" alt="KPay">
+                                <div><img src="example QR code.png" alt="QR Code"></div>
+                                <strong>09 269 481 221</strong>
+                                <span>Min Soe</span>
+                            </div>
+                            <div class="phone-number">
+                                <img class="wavepay" src="WavePay logo.png" alt="WavePay">
+                                <div><img src="example QR code.png" alt="QR Code"></div>
+                                <strong>09 674 452 940</strong>
+                                <span>Min Soe</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-instructions">
+                    <h4>Important Instructions:</h4>
+                    <ul>
+                        <li>Please check the phone number carefully before transferring money.</li>
+                        <li>Your selected VIP package will be sent after the payment is confirmed.</li>
+                        <li>Send the payment screenshot via Facebook Messenger or Viber.</li>
+                    </ul>
+                </div>
+                
+                <div class="business-note">
+                    <p>(This site is developed for real business only. No scamming or time wasting.)</p>
+                </div>
+            </section>
+
+            <!-- Payment Verification Section -->
+            <section class="verification-section" id="verificationSection" style="display: none;">
+                <div class="verification-container">
+                    <h3><i class="fas fa-check-circle"></i> Payment Verification</h3>
+                    
+                    <!-- Upload Area -->
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Upload Payment Screenshot</h4>
+                        <p>Upload your KPay/WavePay payment screenshot</p>
+                        <input type="file" id="paymentScreenshot" accept="image/*" hidden>
+                        <button class="upload-btn" onclick="document.getElementById('paymentScreenshot').click()">
+                            Choose File
+                        </button>
+                        <p class="file-info">Max size: 5MB • JPG, PNG, GIF</p>
+                    </div>
+                    
+                    <!-- Preview Area -->
+                    <div class="preview-area" id="previewArea" style="display: none;">
+                        <div class="preview-header">
+                            <span>Preview</span>
+                            <button class="remove-btn" onclick="removeImage()">
+                                <i class="fas fa-times"></i> Remove
+                            </button>
+                        </div>
+                        <img id="imagePreview" src="" alt="Payment Screenshot">
+                    </div>
+                    
+                    <!-- Transaction Details -->
+                    <div class="transaction-details">
+                        <h4><i class="fas fa-receipt"></i> Transaction Details</h4>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span>Package Selected:</span>
+                                <strong id="verifyPackage">None</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Total Amount:</span>
+                                <strong id="verifyAmount">0 Ks</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Transaction ID:</span>
+                                <input type="text" id="transactionId" placeholder="Enter transaction ID">
+                            </div>
+                            <div class="detail-item">
+                                <span>Payment Method:</span>
+                                <select id="paymentMethod">
+                                    <option value="kpay">KPay</option>
+                                    <option value="wavepay">WavePay</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button class="submit-verification-btn" id="submitVerification" onclick="submitVerification()">
+                        <i class="fas fa-paper-plane"></i> Submit for Verification
+                    </button>
+                    
+                    <!-- Status Message -->
+                    <div class="verification-status" id="verificationStatus"></div>
+                    
+                    <!-- Instructions -->
+                    <div class="verification-instructions">
+                        <h4><i class="fas fa-info-circle"></i> What happens next?</h4>
+                        <ol>
+                            <li>Admin will verify your payment (usually within 15 minutes)</li>
+                            <li>You'll receive notification when verified</li>
+                            <li>VIP package numbers will be sent via Messenger/Viber</li>
+                            <li>If rejected, you'll get a reason and can re-submit</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer with Admin Controls -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 2D Plus. All rights reserved. VIP Lottery Numbers Service.</p>
+            
+            <!-- VIP Package Admin Controls -->
+            <div class="admin-controls">
+                <h4><i class="fas fa-cogs"></i> Admin Controls - VIP Package Status</h4>
+                <div class="control-buttons">
+                    <button onclick="togglePackage(1)" class="control-btn" id="control1">
+                        <i class="fas fa-box"></i> Package 1: 2 hot keys
+                    </button>
+                    <button onclick="togglePackage(2)" class="control-btn" id="control2">
+                        <i class="fas fa-box"></i> Package 2: 1 hot key
+                    </button>
+                    <button onclick="togglePackage(3)" class="control-btn" id="control3">
+                        <i class="fas fa-box"></i> Package 3: 8 pairs
+                    </button>
+                </div>
+                <div class="admin-status">
+                    <div class="status-indicator available"></div> <span>Available</span>
+                    <div class="status-indicator unavailable"></div> <span>Not Available</span>
+                </div>
+                <p class="admin-note">Click any button to toggle package availability</p>
+            </div>
+            
+            <!-- 2D Closing System Admin Controls -->
+            <div class="closing-controls">
+                <h4><i class="fas fa-calendar-times"></i> 2D Closing System</h4>
+                
+                <!-- Current Status -->
+                <div class="closing-status" id="closingStatus">
+                    <div class="status-item">
+                        <span>Today:</span>
+                        <strong id="todayStatus">Checking...</strong>
+                    </div>
+                    <div class="status-item">
+                        <span>Next Open:</span>
+                        <strong id="nextOpenDay">Checking...</strong>
+                    </div>
+                </div>
+                
+                <!-- Weekly Closing Days -->
+                <div class="closing-section">
+                    <h5><i class="fas fa-calendar-day"></i> Weekly Closing Days</h5>
+                    <div class="day-selector">
+                        <button class="day-btn" data-day="0" onclick="toggleClosingDay(0)">Sun</button>
+                        <button class="day-btn" data-day="1" onclick="toggleClosingDay(1)">Mon</button>
+                        <button class="day-btn" data-day="2" onclick="toggleClosingDay(2)">Tue</button>
+                        <button class="day-btn" data-day="3" onclick="toggleClosingDay(3)">Wed</button>
+                        <button class="day-btn" data-day="4" onclick="toggleClosingDay(4)">Thu</button>
+                        <button class="day-btn" data-day="5" onclick="toggleClosingDay(5)">Fri</button>
+                        <button class="day-btn" data-day="6" onclick="toggleClosingDay(6)">Sat</button>
+                    </div>
+                    <p class="section-note">Red = Closed, Green = Open (Default: Sat & Sun closed)</p>
+                </div>
+                
+                <!-- Special Closing Dates -->
+                <div class="closing-section">
+                    <h5><i class="fas fa-calendar-star"></i> Special Closing Dates</h5>
+                    <div class="date-input">
+                        <input type="date" id="specialDateInput">
+                        <button onclick="addSpecialDate()" class="add-btn">
+                            <i class="fas fa-plus"></i> Add Date
+                        </button>
+                    </div>
+                    <div class="special-dates-list" id="specialDatesList">
+                        <!-- Dates will appear here -->
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button onclick="closeToday()" class="action-btn close-btn">
+                        <i class="fas fa-lock"></i> Close Today
+                    </button>
+                    <button onclick="openToday()" class="action-btn open-btn">
+                        <i class="fas fa-unlock"></i> Open Today
+                    </button>
+                    <button onclick="resetClosingDays()" class="action-btn reset-btn">
+                        <i class="fas fa-undo"></i> Reset to Default
+                    </button>
+                </div>
+                
+                <p class="closing-note">
+                    <i class="fas fa-info-circle"></i>
+                    When 2D is closed: Each section shows "Closed" with lock icon.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="snow.js"></script>
+    <script src="script.js"></script>
+
+            <!-- Notification Center Modal -->
+        <div class="notification-modal" id="notificationModal">
+            <div class="notification-modal-content">
+                <div class="notification-modal-header">
+                    <h3><i class="fas fa-bell"></i> Notifications</h3>
+                    <button class="close-modal" onclick="closeNotificationModal()">&times;</button>
+                </div>
+                
+                <div class="notification-tabs">
+                    <button class="tab-btn active" onclick="switchNotificationTab('all')">
+                        <i class="fas fa-list"></i> All
+                    </button>
+                    <button class="tab-btn" onclick="switchNotificationTab('unread')">
+                        <i class="fas fa-envelope"></i> Unread
+                        <span class="badge" id="unreadBadge">0</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchNotificationTab('system')">
+                        <i class="fas fa-cog"></i> System
+                    </button>
+                </div>
+                
+                <div class="notification-list" id="notificationList">
+                    <!-- Notifications will appear here -->
+                    <div class="empty-notifications">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notifications yet</p>
+                        <p class="subtext">You'll get notified about updates here</p>
+                    </div>
+                </div>
+                
+                <div class="notification-actions">
+                    <button class="action-btn mark-all-read" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i> Mark all as read
+                    </button>
+                    <button class="action-btn clear-all" onclick="clearAllNotifications()">
+                        <i class="fas fa-trash"></i> Clear all
+                    </button>
+                </div>
+                
+                <div class="notification-settings">
+                    <h4><i class="fas fa-sliders-h"></i> Notification Settings</h4>
+                    <div class="setting-item">
+                        <span>Number Updates</span>
+                        <label class="switch">
+                            <input type="checkbox" id="notifyNumbers" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Session Reminders</span>
+                        <label class="switch">
+                            <input type="checkbox" id="notifySessions" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Payment Status</span>
+                        <label class="switch">
+                            <input type="checkbox" id="notifyPayments" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Sound Effects</span>
+                        <label class="switch">
+                            <input type="checkbox" id="notifySound" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Notification Button -->
+        <button class="floating-notification-btn" id="floatingNotificationBtn" onclick="openNotificationModal()">
+            <i class="fas fa-bell"></i>
+            <span class="notification-count" id="floatingNotificationCount">0</span>
+        </button>
+
+</body>
+</html>

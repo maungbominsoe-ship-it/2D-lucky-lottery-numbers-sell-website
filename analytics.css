@@ -1,0 +1,70 @@
+/* analytics.css - Additional analytics styles */
+
+/* Smooth transitions for charts */
+.chart-container canvas {
+    transition: opacity 0.3s ease;
+}
+
+.chart-container:hover canvas {
+    opacity: 0.9;
+}
+
+/* Tooltip styling */
+.chartjs-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid #00d4ff !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 10px !important;
+}
+
+/* Scrollbar styling for tables */
+.verification-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.verification-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.verification-list::-webkit-scrollbar-thumb {
+    background: #00d4ff;
+    border-radius: 4px;
+}
+
+.verification-list::-webkit-scrollbar-thumb:hover {
+    background: #0099ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .charts-grid, .tables-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .stat-value {
+        font-size: 28px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .header-controls, .back-btn {
+        display: none !important;
+    }
+    
+    .analytics-container {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .stat-card, .chart-container, .table-container, .insights-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}

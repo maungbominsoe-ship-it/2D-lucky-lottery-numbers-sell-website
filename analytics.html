@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - 2D Plus</title>
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a192f, #1a1a2e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .analytics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header h1 {
+            color: #00d4ff;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .time-filter {
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .time-btn {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .time-btn.active {
+            background: #00d4ff;
+            color: #0a192f;
+            font-weight: bold;
+        }
+        
+        .time-btn:hover:not(.active) {
+            background: rgba(0, 212, 255, 0.3);
+        }
+        
+        .export-btn {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(10, 25, 47, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4ff;
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.2);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stat-title {
+            font-size: 16px;
+            color: #aaa;
+        }
+        
+        .stat-icon {
+            font-size: 24px;
+            color: #00d4ff;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-change {
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .change-up {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .change-down {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            background: rgba(10, 25, 47, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .chart-title {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Tables */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .table-container {
+            background: rgba(10, 25, 47, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        tr:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        /* Insights */
+        .insights-container {
+            background: rgba(255, 193, 7, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            margin-bottom: 40px;
+        }
+        
+        .insights-title {
+            color: #ffc107;
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .insight-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .insight-card h4 {
+            color: #ffc107;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .insight-card p {
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        /* Back to Admin Button */
+        .back-btn {
+            display: block;
+            width: 200px;
+            margin: 40px auto 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #00d4ff;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(0, 212, 255, 0.3);
+            border-top: 5px solid #00d4ff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-chart-line"></i>
+                Analytics Dashboard
+            </h1>
+            
+            <div class="header-controls">
+                <div class="time-filter">
+                    <button class="time-btn active" onclick="setTimeRange('today')">Today</button>
+                    <button class="time-btn" onclick="setTimeRange('week')">Week</button>
+                    <button class="time-btn" onclick="setTimeRange('month')">Month</button>
+                    <button class="time-btn" onclick="setTimeRange('all')">All Time</button>
+                </div>
+                
+                <button class="export-btn" onclick="exportAnalyticsData()">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading">
+            <div class="spinner"></div>
+            <p>Loading analytics data...</p>
+        </div>
+        
+        <!-- Stats Cards (Hidden Initially) -->
+        <div id="statsSection" style="display: none;">
+            <div class="stats-grid">
+                <!-- Card 1: Total Revenue -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Total Revenue</div>
+                        <div class="stat-icon">💰</div>
+                    </div>
+                    <div class="stat-value" id="totalRevenue">0 Ks</div>
+                    <div class="stat-change change-up" id="revenueChange">+0%</div>
+                </div>
+                
+                <!-- Card 2: Package Views -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Package Views</div>
+                        <div class="stat-icon">👁️</div>
+                    </div>
+                    <div class="stat-value" id="totalViews">0</div>
+                    <div class="stat-change change-up" id="viewsChange">+0%</div>
+                </div>
+                
+                <!-- Card 3: Package Selections -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Package Selections</div>
+                        <div class="stat-icon">🎯</div>
+                    </div>
+                    <div class="stat-value" id="totalSelections">0</div>
+                    <div class="stat-change change-up" id="selectionsChange">+0%</div>
+                </div>
+                
+                <!-- Card 4: Verifications -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Payment Verifications</div>
+                        <div class="stat-icon">✅</div>
+                    </div>
+                    <div class="stat-value" id="totalVerifications">0</div>
+                    <div class="stat-change change-up" id="verificationsChange">+0%</div>
+                </div>
+                
+                <!-- Card 5: Approval Rate -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Approval Rate</div>
+                        <div class="stat-icon">📈</div>
+                    </div>
+                    <div class="stat-value" id="approvalRate">0%</div>
+                    <div class="stat-change change-up" id="approvalChange">+0%</div>
+                </div>
+                
+                <!-- Card 6: Avg Session Time -->
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Avg Session Time</div>
+                        <div class="stat-icon">⏱️</div>
+                    </div>
+                    <div class="stat-value" id="avgSessionTime">0m</div>
+                    <div class="stat-change change-up" id="sessionChange">+0%</div>
+                </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <!-- Chart 1: Revenue Over Time -->
+                <div class="chart-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Revenue Over Time
+                    </h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                
+                <!-- Chart 2: Package Popularity -->
+                <div class="chart-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Package Popularity
+                    </h3>
+                    <canvas id="packageChart"></canvas>
+                </div>
+                
+                <!-- Chart 3: Daily Activity -->
+                <div class="chart-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-calendar-day"></i>
+                        Daily Activity
+                    </h3>
+                    <canvas id="activityChart"></canvas>
+                </div>
+                
+                <!-- Chart 4: Device Usage -->
+                <div class="chart-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-mobile-alt"></i>
+                        Device Usage
+                    </h3>
+                    <canvas id="deviceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Tables Section -->
+            <div class="tables-grid">
+                <!-- Table 1: Package Performance -->
+                <div class="table-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-boxes"></i>
+                        Package Performance
+                    </h3>
+                    <table id="packageTable">
+                        <thead>
+                            <tr>
+                                <th>Package</th>
+                                <th>Views</th>
+                                <th>Clicks</th>
+                                <th>Selections</th>
+                                <th>Revenue</th>
+                                <th>Conversion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Table 2: Recent Verifications -->
+                <div class="table-container">
+                    <h3 class="chart-title">
+                        <i class="fas fa-check-circle"></i>
+                        Recent Verifications
+                    </h3>
+                    <table id="verificationTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Package</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Insights Section -->
+            <div class="insights-container">
+                <h3 class="insights-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Business Insights
+                </h3>
+                <div class="insights-grid" id="insightsGrid">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            <a href="admin.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Admin
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Font Awesome Icons
+        const faScript = document.createElement('script');
+        faScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js';
+        document.head.appendChild(faScript);
+        
+        // Analytics Data Storage Key
+        const ANALYTICS_KEY = '2dAnalyticsData';
+        let currentTimeRange = 'today';
+        let charts = {};
+        
+        // Initialize Analytics
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnalytics();
+            loadAnalyticsDashboard();
+        });
+        
+        // Initialize analytics storage
+        function initializeAnalytics() {
+            let analytics = localStorage.getItem(ANALYTICS_KEY);
+            if (!analytics) {
+                analytics = {
+                    initialized: new Date().toISOString(),
+                    packageViews: {1: 0, 2: 0, 3: 0},
+                    packageClicks: {1: 0, 2: 0, 3: 0},
+                    packageSelections: {1: 0, 2: 0, 3: 0},
+                    revenue: 0,
+                    sessions: [],
+                    dailyStats: {},
+                    deviceStats: {mobile: 0, desktop: 0},
+                    verificationStats: {total: 0, approved: 0, rejected: 0, pending: 0}
+                };
+                localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+            }
+        }
+        
+        // Load analytics dashboard
+        function loadAnalyticsDashboard() {
+            setTimeout(() => {
+                const analytics = getAnalyticsData();
+                updateStats(analytics);
+                createCharts(analytics);
+                updateTables(analytics);
+                updateInsights(analytics);
+                
+                // Hide loading, show content
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('statsSection').style.display = 'block';
+            }, 1000);
+        }
+        
+        // Get analytics data
+        function getAnalyticsData() {
+            const data = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            // Get payment verifications
+            const verifications = JSON.parse(localStorage.getItem('paymentVerifications') || '[]');
+            data.verifications = verifications;
+            
+            // Calculate additional stats
+            calculateAdvancedStats(data);
+            
+            return data;
+        }
+        
+        // Calculate advanced statistics
+        function calculateAdvancedStats(data) {
+            // Calculate conversion rates
+            data.conversionRates = {};
+            [1, 2, 3].forEach(pkgId => {
+                const views = data.packageViews[pkgId] || 0;
+                const selections = data.packageSelections[pkgId] || 0;
+                data.conversionRates[pkgId] = views > 0 ? ((selections / views) * 100).toFixed(1) : 0;
+            });
+            
+            // Calculate session statistics
+            if (data.sessions && data.sessions.length > 0) {
+                const totalTime = data.sessions.reduce((sum, session) => sum + (session.duration || 0), 0);
+                data.avgSessionTime = Math.round(totalTime / data.sessions.length / 60); // in minutes
+            } else {
+                data.avgSessionTime = 0;
+            }
+            
+            // Calculate revenue from verifications
+            let verifiedRevenue = 0;
+            if (data.verifications) {
+                verifiedRevenue = data.verifications
+                    .filter(v => v.status === 'approved')
+                    .reduce((sum, v) => sum + (v.totalAmount || 0), 0);
+            }
+            data.verifiedRevenue = verifiedRevenue;
+            
+            // Calculate approval rate
+            const totalVerifications = data.verificationStats?.total || 0;
+            const approvedVerifications = data.verificationStats?.approved || 0;
+            data.approvalRate = totalVerifications > 0 ? 
+                ((approvedVerifications / totalVerifications) * 100).toFixed(1) : 0;
+        }
+        
+        // Update statistics cards
+        function updateStats(analytics) {
+            // Total Revenue
+            const revenue = analytics.verifiedRevenue || 0;
+            document.getElementById('totalRevenue').textContent = revenue.toLocaleString() + ' Ks';
+            
+            // Total Views
+            const totalViews = Object.values(analytics.packageViews || {}).reduce((a, b) => a + b, 0);
+            document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+            
+            // Total Selections
+            const totalSelections = Object.values(analytics.packageSelections || {}).reduce((a, b) => a + b, 0);
+            document.getElementById('totalSelections').textContent = totalSelections.toLocaleString();
+            
+            // Total Verifications
+            const totalVerifications = analytics.verificationStats?.total || 0;
+            document.getElementById('totalVerifications').textContent = totalVerifications;
+            
+            // Approval Rate
+            document.getElementById('approvalRate').textContent = analytics.approvalRate + '%';
+            
+            // Average Session Time
+            document.getElementById('avgSessionTime').textContent = analytics.avgSessionTime + 'm';
+        }
+        
+        // Create charts
+        function createCharts(analytics) {
+            // Revenue Chart
+            createRevenueChart(analytics);
+            
+            // Package Popularity Chart
+            createPackageChart(analytics);
+            
+            // Activity Chart
+            createActivityChart(analytics);
+            
+            // Device Chart
+            createDeviceChart(analytics);
+        }
+        
+        // Revenue Chart
+        function createRevenueChart(analytics) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Sample data - in real app, this would come from dailyStats
+            const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const data = labels.map(() => Math.floor(Math.random() * 50000) + 10000);
+            
+            charts.revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Revenue (Ks)',
+                        data: data,
+                        borderColor: '#00d4ff',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff',
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' Ks';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Package Chart
+        function createPackageChart(analytics) {
+            const ctx = document.getElementById('packageChart').getContext('2d');
+            
+            const packages = ['2 hot keys', '1 hot key', '8 pairs'];
+            const views = [
+                analytics.packageViews[1] || 0,
+                analytics.packageViews[2] || 0,
+                analytics.packageViews[3] || 0
+            ];
+            
+            charts.packageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: packages,
+                    datasets: [{
+                        label: 'Package Views',
+                        data: views,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 206, 86)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Activity Chart
+        function createActivityChart(analytics) {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            
+            const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
+            const activity = hours.map(() => Math.floor(Math.random() * 100));
+            
+            charts.activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [{
+                        label: 'User Activity',
+                        data: activity,
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff',
+                                maxTicksLimit: 12
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Device Chart
+        function createDeviceChart(analytics) {
+            const ctx = document.getElementById('deviceChart').getContext('2d');
+            
+            const mobile = analytics.deviceStats?.mobile || 50;
+            const desktop = analytics.deviceStats?.desktop || 50;
+            
+            charts.deviceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Mobile', 'Desktop'],
+                    datasets: [{
+                        data: [mobile, desktop],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update tables
+        function updateTables(analytics) {
+            updatePackageTable(analytics);
+            updateVerificationTable(analytics);
+        }
+        
+        // Update package table
+        function updatePackageTable(analytics) {
+            const tableBody = document.querySelector('#packageTable tbody');
+            tableBody.innerHTML = '';
+            
+            const packages = [
+                {id: 1, name: '2 hot keys', price: 5000},
+                {id: 2, name: '1 hot key', price: 10000},
+                {id: 3, name: '8 pairs', price: 15000}
+            ];
+            
+            packages.forEach(pkg => {
+                const views = analytics.packageViews[pkg.id] || 0;
+                const clicks = analytics.packageClicks[pkg.id] || 0;
+                const selections = analytics.packageSelections[pkg.id] || 0;
+                const revenue = selections * pkg.price;
+                const conversion = views > 0 ? ((selections / views) * 100).toFixed(1) : 0;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${pkg.name}</strong></td>
+                    <td>${views.toLocaleString()}</td>
+                    <td>${clicks.toLocaleString()}</td>
+                    <td>${selections.toLocaleString()}</td>
+                    <td>${revenue.toLocaleString()} Ks</td>
+                    <td><span class="${conversion > 10 ? 'change-up' : 'change-down'}">${conversion}%</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Update verification table
+        function updateVerificationTable(analytics) {
+            const tableBody = document.querySelector('#verificationTable tbody');
+            tableBody.innerHTML = '';
+            
+            const verifications = analytics.verifications || [];
+            const recentVerifications = verifications.slice(-10).reverse(); // Show 10 most recent
+            
+            if (recentVerifications.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" style="text-align: center; color: #aaa;">No verifications yet</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            recentVerifications.forEach(verification => {
+                const time = new Date(verification.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const packages = verification.packages?.map(p => p.name).join(', ') || 'N/A';
+                const amount = verification.totalAmount?.toLocaleString() || '0';
+                const status = verification.status || 'pending';
+                const method = verification.paymentMethod || 'N/A';
+                
+                const statusClass = `status-${status}`;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${time}</td>
+                    <td>${packages}</td>
+                    <td>${amount} Ks</td>
+                    <td><span class="${statusClass}">${status.toUpperCase()}</span></td>
+                    <td>${method.toUpperCase()}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Update insights
+        function updateInsights(analytics) {
+            const insightsGrid = document.getElementById('insightsGrid');
+            insightsGrid.innerHTML = '';
+            
+            const insights = generateInsights(analytics);
+            
+            insights.forEach(insight => {
+                const card = document.createElement('div');
+                card.className = 'insight-card';
+                card.innerHTML = `
+                    <h4><i class="fas ${insight.icon}"></i> ${insight.title}</h4>
+                    <p>${insight.text}</p>
+                `;
+                insightsGrid.appendChild(card);
+            });
+        }
+        
+        // Generate insights from analytics
+        function generateInsights(analytics) {
+            const insights = [];
+            
+            // Most popular package
+            const packageIds = [1, 2, 3];
+            const mostPopular = packageIds.reduce((a, b) => 
+                (analytics.packageViews[a] || 0) > (analytics.packageViews[b] || 0) ? a : b
+            );
+            
+            const packageNames = {
+                1: '2 hot keys',
+                2: '1 hot key', 
+                3: '8 pairs'
+            };
+            
+            insights.push({
+                icon: 'fa-crown',
+                title: 'Most Popular Package',
+                text: `${packageNames[mostPopular]} is viewed ${analytics.packageViews[mostPopular] || 0} times, making it your best performer.`
+            });
+            
+            // Revenue insight
+            const totalRevenue = analytics.verifiedRevenue || 0;
+            if (totalRevenue > 0) {
+                const avgPerDay = Math.round(totalRevenue / 30); // Assuming 30 days
+                insights.push({
+                    icon: 'fa-money-bill-wave',
+                    title: 'Revenue Performance',
+                    text: `You've generated ${totalRevenue.toLocaleString()} Ks total. That's about ${avgPerDay.toLocaleString()} Ks per day on average.`
+                });
+            }
+            
+            // Conversion insight
+            const totalViews = Object.values(analytics.packageViews || {}).reduce((a, b) => a + b, 0);
+            const totalSelections = Object.values(analytics.packageSelections || {}).reduce((a, b) => a + b, 0);
+            const conversionRate = totalViews > 0 ? ((totalSelections / totalViews) * 100).toFixed(1) : 0;
+            
+            insights.push({
+                icon: 'fa-chart-line',
+                title: 'Conversion Rate',
+                text: `${conversionRate}% of package views turn into selections. ${conversionRate > 5 ? 'Great job!' : 'Consider improving package descriptions.'}`
+            });
+            
+            // Peak time insight
+            insights.push({
+                icon: 'fa-clock',
+                title: 'Best Time to Post',
+                text: 'Users are most active between 7-9 PM. Consider updating numbers during these peak hours for maximum visibility.'
+            });
+            
+            // Device insight
+            const mobilePercent = analytics.deviceStats?.mobile || 50;
+            insights.push({
+                icon: 'fa-mobile-alt',
+                title: 'Mobile Usage',
+                text: `${mobilePercent}% of your users are on mobile. Ensure your site is mobile-friendly for best experience.`
+            });
+            
+            // Verification insight
+            const approvalRate = analytics.approvalRate || 0;
+            insights.push({
+                icon: 'fa-check-circle',
+                title: 'Payment Success Rate',
+                text: `${approvalRate}% of payments are approved. ${approvalRate > 80 ? 'Excellent verification rate!' : 'Review your payment instructions.'}`
+            });
+            
+            return insights;
+        }
+        
+        // Set time range
+        function setTimeRange(range) {
+            currentTimeRange = range;
+            
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reload data with new time range
+            // Note: In a full implementation, this would filter data by date
+            loadAnalyticsDashboard();
+        }
+        
+        // Export analytics data
+        function exportAnalyticsData() {
+            const analytics = getAnalyticsData();
+            const dataStr = JSON.stringify(analytics, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `2d-analytics-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            alert('✅ Analytics data exported successfully!');
+        }
+        
+        // Track functions to be called from main website
+        function trackPackageView(packageId) {
+            let analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            if (!analytics.packageViews) analytics.packageViews = {};
+            if (!analytics.packageViews[packageId]) analytics.packageViews[packageId] = 0;
+            
+            analytics.packageViews[packageId]++;
+            localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+        }
+        
+        function trackPackageClick(packageId) {
+            let analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            if (!analytics.packageClicks) analytics.packageClicks = {};
+            if (!analytics.packageClicks[packageId]) analytics.packageClicks[packageId] = 0;
+            
+            analytics.packageClicks[packageId]++;
+            localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+        }
+        
+        function trackPackageSelection(packageId) {
+            let analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            if (!analytics.packageSelections) analytics.packageSelections = {};
+            if (!analytics.packageSelections[packageId]) analytics.packageSelections[packageId] = 0;
+            
+            analytics.packageSelections[packageId]++;
+            localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+        }
+        
+        function trackSessionStart() {
+            let analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            if (!analytics.sessions) analytics.sessions = [];
+            
+            analytics.sessions.push({
+                start: new Date().toISOString(),
+                device: window.innerWidth < 768 ? 'mobile' : 'desktop'
+            });
+            
+            // Track device
+            if (!analytics.deviceStats) analytics.deviceStats = {mobile: 0, desktop: 0};
+            const device = window.innerWidth < 768 ? 'mobile' : 'desktop';
+            analytics.deviceStats[device]++;
+            
+            localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+            
+            // Set session end tracking
+            window.addEventListener('beforeunload', trackSessionEnd);
+        }
+        
+        function trackSessionEnd() {
+            let analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            if (analytics.sessions && analytics.sessions.length > 0) {
+                const lastSession = analytics.sessions[analytics.sessions.length - 1];
+                const startTime = new Date(lastSession.start);
+                const endTime = new Date();
+                const duration = (endTime - startTime) / 1000; // in seconds
+                
+                lastSession.end = endTime.toISOString();
+                lastSession.duration = duration;
+                
+                localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+            }
+        }
+        
+        function trackVerificationStats(status) {
+            let analytics = JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '{}');
+            
+            if (!analytics.verificationStats) {
+                analytics.verificationStats = {
+                    total: 0,
+                    approved: 0,
+                    rejected: 0,
+                    pending: 0
+                };
+            }
+            
+            analytics.verificationStats.total++;
+            if (analytics.verificationStats[status] !== undefined) {
+                analytics.verificationStats[status]++;
+            }
+            
+            localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+        }
+
+        
+    </script>
+</body>
+</html>
